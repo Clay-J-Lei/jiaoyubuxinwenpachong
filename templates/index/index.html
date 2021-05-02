@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container" style="height: 500px"></div>
+
+<script>
+
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    myChart.setOption({
+        title: {
+            text: '发布量',
+            subtext: 'lmer'
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            data: [],
+            type: 'bar',
+            showBackground: true,
+            backgroundStyle: {
+                color: 'rgba(180, 180, 180, 0.2)'
+            }
+        }]
+    });
+    $.ajax({
+        url: "/getdata/",
+        type: "GET",
+        success: function (res) {
+            var data = JSON.parse(res);
+            var time = [];
+            var db = [];
+            for (var key in data) {
+                console.log(key);
+                time.push(key);
+                console.log(data[key]);
+                db.push(data[key])
+                myChart.setOption({
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: time,
+                            axisTick: {
+                                alignWithLabel: true
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value'
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '当天发布量',
+                            type: 'bar',
+                            barWidth: '60%',
+                            data: db
+                        }
+                    ]
+                });
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
